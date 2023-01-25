@@ -12,7 +12,10 @@ struct MemoryGame<CardContent: Equatable> where CardContent: Equatable {
     
     private(set) var cards: [Card]
     
-    private var indexOfTheOneAndOnlyFaceUpCard: Int?
+    private var indexOfTheOneAndOnlyFaceUpCard: Int? {
+        get { cards.indices.filter { cards[$0].isFaceUp }.oneAndOnly }
+        set { cards.indices.forEach { cards[$0].isFaceUp = ($0 == newValue) } }
+    }
     
     init(numberOfPairOfCards: Int, createCardContent: (Int) -> CardContent) {
         self.cards = [Card]()
@@ -34,16 +37,20 @@ struct MemoryGame<CardContent: Equatable> where CardContent: Equatable {
                     cards[potentialMatchIndex].isMatched = true
                 }
                 
-                indexOfTheOneAndOnlyFaceUpCard = nil
+                cards[chosenIndex].isFaceUp = true
             } else {
-                for index in 0..<cards.count {
-                    cards[index].isFaceUp = false
-                }
-                
                 indexOfTheOneAndOnlyFaceUpCard = chosenIndex
             }
-            
-            cards[chosenIndex].isFaceUp.toggle()
+        }
+    }
+}
+
+extension Array {
+    var oneAndOnly: Element? {
+        if count == 1 {
+            return first
+        } else {
+            return nil
         }
     }
 }
